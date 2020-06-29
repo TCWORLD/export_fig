@@ -578,8 +578,11 @@ function [imageData, alpha] = export_fig(varargin) %#ok<*STRCL1>
                 % Correct black axes color to off-black (issue #249)
                 hAxes = findall(fig, 'Type','axes');
                 hXs = fixBlackAxle(hAxes, 'XColor');
+                hXrs = fixBlackAxleRulers(hXs, 'XAxis');
                 hYs = fixBlackAxle(hAxes, 'YColor');
+                hYrs = fixBlackAxleRulers(hYs, 'YAxis');
                 hZs = fixBlackAxle(hAxes, 'ZColor');
+                hZrs = fixBlackAxleRulers(hZs, 'ZAxis');
 
                 % The following code might cause out-of-memory errors
                 try
@@ -599,8 +602,11 @@ function [imageData, alpha] = export_fig(varargin) %#ok<*STRCL1>
                 set(hCB(xCol==3), 'XColor', [1 1 1]);
                 % Revert the black axes colors
                 set(hXs, 'XColor', [0,0,0]);
+                set(hXrs, 'Color', [0,0,0]);
                 set(hYs, 'YColor', [0,0,0]);
+                set(hYrs, 'Color', [0,0,0]);
                 set(hZs, 'ZColor', [0,0,0]);
+                set(hZrs, 'Color', [0,0,0]);
 
                 % The following code might cause out-of-memory errors
                 try
@@ -837,8 +843,11 @@ function [imageData, alpha] = export_fig(varargin) %#ok<*STRCL1>
                     % Correct black axes color to off-black (issue #249)
                     hAxes = findall(fig, 'Type','axes');
                     hXs = fixBlackAxle(hAxes, 'XColor');
+                    hXrs = fixBlackAxleRulers(hXs, 'XAxis');
                     hYs = fixBlackAxle(hAxes, 'YColor');
+                    hYrs = fixBlackAxleRulers(hYs, 'YAxis');
                     hZs = fixBlackAxle(hAxes, 'ZColor');
+                    hZrs = fixBlackAxleRulers(hZs, 'ZAxis');
                 end
                 % Generate an eps
                 print2eps(tmp_nam, fig, options, printArgs{:});
@@ -849,8 +858,11 @@ function [imageData, alpha] = export_fig(varargin) %#ok<*STRCL1>
 
                     % Revert the black axes colors
                     set(hXs, 'XColor', [0,0,0]);
+                    set(hXrs, 'Color', [0,0,0]);
                     set(hYs, 'YColor', [0,0,0]);
+                    set(hYrs, 'Color', [0,0,0]);
                     set(hZs, 'ZColor', [0,0,0]);
+                    set(hZrs, 'Color', [0,0,0]);
                 end
                 %}
                 % Restore the figure's previous background color (if modified)
@@ -1687,6 +1699,22 @@ function hBlackAxles = fixBlackAxle(hAxes, axleName)
         end
     end
     set(hBlackAxles, axleName, [0,0,0.01]);  % off-black
+end
+
+function [hBlackRulers] = fixBlackAxleRulers(hBlackAxles, axleName)
+    hBlackRulers = [];
+    for idx = 1 : numel(hBlackAxles)
+        ax = hBlackAxles(idx);
+        hRulers = get(ax, axleName);
+        for ridx = 1: numel(hRulers)
+            hRuler = hRulers(ridx);
+            rulerColor = get(hRuler, 'Color');
+            if isequal(rulerColor,[0,0,0]) || isequal(rulerColor,'k')
+                hBlackRulers(end+1) = hRuler; %#ok<AGROW>
+            end
+        end
+    end
+    set(hBlackRulers, 'Color', [0,0,0.01]);  % off-black
 end
 
 % Issue #269: format-specific options
